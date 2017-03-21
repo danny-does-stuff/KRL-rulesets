@@ -4,14 +4,14 @@ ruleset trip_store {
 		description << The trip store ruleset >>
 		author "Danny Harding"
 		logging on
-		provides trips, long_trips, short_trips
+		provides long_trips, short_trips
 		shares __testing, trips, long_trips, short_trips
 	}
 
 	global {
 
 		__testing = { 
-			"queries": [ { "name": "__testing" } ],
+			"queries": [ { "name": "__testing" }, { "name": "trips" }, { "name": "long_trips" }, { "name": "short_trips" } ],
 			"events": [ { "domain": "explicit", "type": "trip_processed", "attrs": [ "mileage" ] },
 						{ "domain": "explicit", "type": "found_long_trip", "attrs": [ "mileage" ] },
 						{ "domain": "car", "type": "trip_reset" } ]
@@ -26,7 +26,9 @@ ruleset trip_store {
 		}
 
 		short_trips = function() {
-			
+			shortTrips = ent:trips.filter(function(key, value) {
+				not ent:long_trips >< key
+			})
 		}
 
 		empty_trips = {}
