@@ -29,6 +29,8 @@ ruleset trip_store {
 			shortTrips = ent:trips.filter(function(key, value) {
 				not ent:long_trips >< key
 			})
+			
+			shortTrips
 		}
 
 		empty_trips = {}
