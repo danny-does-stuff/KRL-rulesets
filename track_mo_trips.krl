@@ -21,6 +21,7 @@ ruleset track_mo_trips {
 		select when car new_trip
 		pre {
 			allAttributes = event:attrs()
+			allAttributes{"timestamp"} = time:now()
 		}
 		always {
 			raise explicit event "trip_processed"
@@ -37,6 +38,7 @@ ruleset track_mo_trips {
 			send_directive("is_long")
 		fired {
 			raise explicit event "found_long_trip"
+				attributes event:attrs()
 		}
 	}
 }
