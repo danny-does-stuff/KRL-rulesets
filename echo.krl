@@ -15,13 +15,13 @@ ruleset echo {
 		}
 	}
 
-	rule hello_world {
+	rule hello {
 		select when echo hello
 		send_directive("say") with
 			something = "Hello World"
 	}
 
-	rule hello_world {
+	rule message {
 		select when echo message
 		pre {
 			message = event:attr("input").defaultsTo("Y U NO GIVE MESSAGE")
