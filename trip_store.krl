@@ -39,7 +39,7 @@ ruleset trip_store {
 			time = event:attr("timestamp")
 		}
 		always {
-			ent:trips{ time } := {"mileage": mileage, "timestamp": time}
+			ent:trips{ [time] } := {"mileage": mileage, "timestamp": time}
 		}
 	}
 
@@ -50,7 +50,7 @@ ruleset trip_store {
 			time = event:attr("timestamp")
 		}
 		always {
-			ent:long_trips{ time } := {"mileage": mileage, "timestamp": time}
+			ent:long_trips{ [time] } := {"mileage": mileage, "timestamp": time}
 		}
 
 	}
