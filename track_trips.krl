@@ -11,14 +11,14 @@ ruleset track_trips {
 
 		__testing = { 
 			"queries": [ { "name": "__testing" } ],
-			"events": [ { "domain": "echo", "type": "message", "attrs": [ "input" ] } ]
+			"events": [ { "domain": "echo", "type": "message", "attrs": [ "mileage" ] } ]
 		}
 	}
 
 	rule process_trip {
 		select when echo message
 		pre {
-			mileage = event:attr("mileage")
+			mileage = event:attr("mileage").defaultsTo("NO MILEAGE GIVEN")
 		}
 		send_directive("trip") with
 			trip_length = mileage
