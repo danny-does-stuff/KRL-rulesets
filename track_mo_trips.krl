@@ -37,7 +37,6 @@ ruleset track_mo_trips {
 			send_directive("is_long")
 		fired {
 			raise explicit event "found_long_trip"
-			log "raised it"
 		}
 	}
 }
