@@ -1,6 +1,6 @@
-ruleset echo {
+ruleset track_trips {
 	meta {
-		name "echo"
+		name "track_trips"
 		description << A track trips ruleset >>
 		author "Danny Harding"
 		logging on
