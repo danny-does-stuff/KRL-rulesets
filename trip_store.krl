@@ -4,7 +4,7 @@ ruleset trip_store {
 		description << The trip store ruleset >>
 		author "Danny Harding"
 		logging on
-		provides long_trips, short_trips
+		provides trips, long_trips, short_trips
 		shares __testing, trips, long_trips, short_trips
 	}
 
