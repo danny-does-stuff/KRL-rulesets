@@ -21,20 +21,21 @@ A first ruleset for the Quickstart
     }
 
     clear_name = { "_0": { "name": { "first": "GlaDOS", "last": "" } } }
+    
+    name = function(id) {
+      all_users = users();
+      nameObj = id => all_users{[id,"name"]}
+                    | { "first": "HAL", "last": "9000" };
+      first = nameObj{"first"};
+      last = nameObj{"last"};
+      first + " " + last
+    }
+     
+    users = function() {
+      ent:name
+    }
   }
 
-  name = function(id) {
-    all_users = users();
-    nameObj = id => all_users{[id,"name"]}
-                  | { "first": "HAL", "last": "9000" };
-    first = nameObj{"first"};
-    last = nameObj{"last"};
-    first + " " + last
-  }
-   
-  users = function() {
-    ent:name
-  }
   
   rule hello_world {
     select when echo hello
