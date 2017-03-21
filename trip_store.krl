@@ -13,7 +13,8 @@ ruleset trip_store {
 		__testing = { 
 			"queries": [ { "name": "__testing" } ],
 			"events": [ { "domain": "explicit", "type": "trip_processed", "attrs": [ "mileage" ] },
-						{ "domain": "explicit", "type": "found_long_trip", "attrs": [ "mileage" ] } ]
+						{ "domain": "explicit", "type": "found_long_trip", "attrs": [ "mileage" ] },
+						{ "domain": "car", "type": "trip_reset" } ]
 		}
 
 		trips = function() {
@@ -29,8 +30,6 @@ ruleset trip_store {
 		}
 
 		empty_trips = {}
-
-		tripID = 0
 	}
 
 	rule collect_trips {
@@ -40,8 +39,7 @@ ruleset trip_store {
 			time = event:attr("timestamp")
 		}
 		always {
-			ent:trips{[ tripID ]} := {"mileage": mileage, "timestamp": time};
-			tripID = tripID + 1
+			ent:trips{ time } := {"mileage": mileage, "timestamp": time}
 		}
 	}
 
@@ -52,8 +50,7 @@ ruleset trip_store {
 			time = event:attr("timestamp")
 		}
 		always {
-			ent:long_trips{[ tripID ]} := {"mileage": mileage, "timestamp": time};
-			tripID = tripID + 1
+			ent:long_trips{ time } := {"mileage": mileage, "timestamp": time}
 		}
 
 	}
