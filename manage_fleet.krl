@@ -22,12 +22,12 @@ ruleset manage_fleet {
 	rule create_vehicle {
 		select when car new_vehicle
 		pre {
-			subscriptionName = event:attr("subscriptionName").defaultsTo("Fleet-Car subscription")
+			//subscriptionName = event:attr("subscriptionName").defaultsTo("Fleet-Car subscription")
 
-			attributes = {}
-				.put(["name"], "New Car")
-				.put(["owner"], "Owner Name?")
-				.put(["Prototype_rids"], "b507780x54.prod, b507780x56.prod") //Installs rule sets b507780x54.prod and b507780x56.prod in the newly created Pico
+			//attributes = {}
+			//	.put(["name"], "New Car")
+			//	.put(["owner"], "Owner Name?")
+			//	.put(["Prototype_rids"], "b507780x54.prod, b507780x56.prod") //Installs rule sets b507780x54.prod and b507780x56.prod in the newly created Pico
 		}
 		always {
 			raise create event "car_pico"
