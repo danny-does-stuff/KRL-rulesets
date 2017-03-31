@@ -15,8 +15,6 @@ ruleset manage_fleet {
 				{ "domain": "create", "type": "car_pico" }
 			]
 		}
-
-		numCars = 0
 	}
 
 	rule create_vehicle {
@@ -37,11 +35,11 @@ ruleset manage_fleet {
 	rule create_pico {
 		select when create car_pico
 		pre {
-			numCars = numCars + 1
-			newPicoName = "car" + numCars
 			eci = meta:eci
+			newPicoName = "car" + ent:numCars
 		}
 		always {
+			ent:numCars := ent:numCars + 1;
 			raise pico event "new_child_request"
 				attributes { "dname": newPicoName, "color": "#FF69B4" }
 		}
