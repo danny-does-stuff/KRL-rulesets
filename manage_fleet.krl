@@ -5,7 +5,6 @@ ruleset manage_fleet {
 		author "Danny Harding"
 		logging on
 		shares __testing
-		use module v1_wrangler alias wranglerOS
 	}
 
 	global {
