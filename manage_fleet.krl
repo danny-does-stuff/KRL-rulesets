@@ -4,6 +4,7 @@ ruleset manage_fleet {
 		description << Fleet managing ruleset for the fleet pico >>
 		author "Danny Harding"
 		logging on
+    use module Subscriptions
 		shares __testing
 	}
 
