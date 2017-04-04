@@ -45,7 +45,7 @@ ruleset manage_fleet {
     }
 
     fleetTrips = function() {
-      vehicles = ent:vehicles
+      vehicles = ent:vehicles;
       vehicles.map(function(vehicleID, vehicle) {
         {
           "vehicles": vehicles.keys().length(),
