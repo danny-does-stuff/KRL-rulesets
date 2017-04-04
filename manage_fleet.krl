@@ -12,18 +12,37 @@ ruleset manage_fleet {
 		__testing = { 
 			"queries": [ { "name": "__testing" } ],
 			"events": [
-				{ "domain": "car", "type": "new_vehicle", "attrs": [ "vehicleID" ] },
-				{ "domain": "create", "type": "car_pico" }
+				{ 
+          "domain": "car",
+          "type": "new_vehicle",
+          "attrs": [ "vehicleID" ]
+        },
+				{
+          "domain": "create",
+          "type": "car_pico",
+          "attrs": [ "vehicleID" ]
+        },
+        {
+          "domain": "car",
+          "type": "unneeded_vehicle",
+          "attrs": [ "vehicleID" ]
+        }
 			]
 		}
 
     subscriptionNameFromID = function(vehicleID) {
-      "car" + vehicleID + " subscription"
+      "car" + vehicleID
+    }
+
+    subscriptionName = function(vehicleID) {
+      subscriptionNameSpace + ":" + subscriptionNameFromID(vehicleID)
     }
 
     vehicles = function() {
-      ent:vehicles
+      Subscriptions:getSubscriptions()
     }
+
+    subscriptionNameSpace = "fleet-car"
 	}
 
 	rule create_vehicle {
@@ -42,7 +61,7 @@ ruleset manage_fleet {
 		pre {
       vehicleID = event:attr("vehicleID")
       exists = ent:vehicles >< vehicleID
-			newPicoName = "car" + vehicleID
+			newPicoName = "car numero " + vehicleID
 		}
     if exists then
       send_directive("vehicle ready")
@@ -88,17 +107,36 @@ ruleset manage_fleet {
       eci = meta:eci
     }
       event:send(
-        { "eci": eci, "eid": "subscription",
-          "domain": "wrangler", "type": "subscription",
-          "attrs": { 
-            "name": subscriptionNameFromID(vehicleID),
-            "name_space": "fleet-car",
-            "my_role": "fleet",
-            "subscriber_role": "vehicle",
-            "channel_type": "subscription",
-            "subscriber_eci": vehicle.eci
-          }
+      { "eci": eci, "eid": "subscription",
+        "domain": "wrangler", "type": "subscription",
+        "attrs": { 
+          "name": subscriptionNameFromID(vehicleID),
+          "name_space": subscriptionNameSpace,
+          "my_role": "fleet",
+          "subscriber_role": "vehicle",
+          "channel_type": "subscription",
+          "subscriber_eci": vehicle.eci
         }
-      )
+      }
+    )
+  }
+
+  rule delete_vehicle {
+    select when car unneeded_vehicle
+    pre {
+      vehicleID = event:attrs("vehicleID")
+      vehicle = ent:vehicles{ [vehicleID] }
+      exists = ent:vehicles >< vehicleID
+    }
+    if exists then
+      send_directive("removing vehicle")
+        with vehicleID = vehicleID
+    fired {
+      raise wrangler event "subscription_cancellation"
+        with subscription_name = subscriptionName(vehicleID);
+      raise pico event "delete_child_request"
+        attributes vehicle;
+      ent:vehicles{ [vehicleID] } := null
+    }
   }
 }
