@@ -125,8 +125,8 @@ ruleset manage_fleet {
     select when car unneeded_vehicle
     pre {
       vehicleID = event:attrs("vehicleID")
-      vehicle = ent:vehicles{ [vehicleID] }.klog("this is the vehicle")
-      exists = ent:vehicles >< vehicleID.klog("is it existing?")
+      vehicle = ent:vehicles{ vehicleID }.klog("this is the vehicle")
+      exists = ent:vehicles >< vehicleID
     }
     if exists then
       send_directive("removing vehicle")
@@ -136,7 +136,7 @@ ruleset manage_fleet {
         with subscription_name = subscriptionName(vehicleID);
       raise pico event "delete_child_request"
         attributes vehicle;
-      ent:vehicles{ [vehicleID] } := null
+      ent:vehicles{ vehicleID } := null
     } else {
       ent:vehicles.klog("my vehicles")
     }
