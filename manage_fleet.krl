@@ -39,7 +39,9 @@ ruleset manage_fleet {
     }
 
     vehicles = function() {
-      Subscriptions:getSubscriptions()
+      Subscriptions:getSubscriptions().filter(function(subscription) {
+        subscription{"attributes"}{"subscriber_role"} == "vehicle"
+      })
     }
 
     subscriptionNameSpace = "fleet-car"
@@ -102,8 +104,8 @@ ruleset manage_fleet {
   rule create_subscription {
     select when create car_subscription
     pre {
-      vehicle = event:attr("vehicle").klog("vehicle")
-      vehicleID = event:attr("vehicleID").klog("vehilce ID")
+      vehicle = event:attr("vehicle")
+      vehicleID = event:attr("vehicleID")
       eci = meta:eci
     }
       event:send(
@@ -124,9 +126,9 @@ ruleset manage_fleet {
   rule delete_vehicle {
     select when car unneeded_vehicle
     pre {
-      vehicleID = event:attr("vehicleID").klog("got id")
-      vehicle = ent:vehicles{ vehicleID }.klog("this is the vehicle")
-      exists = (ent:vehicles >< vehicleID).klog("this is exists")
+      vehicleID = event:attr("vehicleID")
+      vehicle = ent:vehicles{ vehicleID }
+      exists = ent:vehicles >< vehicleID
     }
     if exists then
       send_directive("removing vehicle")
@@ -137,8 +139,6 @@ ruleset manage_fleet {
       raise pico event "delete_child_request"
         attributes vehicle;
       ent:vehicles{ vehicleID } := null
-    } else {
-      ent:vehicles.klog("my vehicles")
     }
   }
 }
