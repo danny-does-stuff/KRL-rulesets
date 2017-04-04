@@ -124,7 +124,7 @@ ruleset manage_fleet {
   rule delete_vehicle {
     select when car unneeded_vehicle
     pre {
-      vehicleID = event:attrs("vehicleID").klog("got id")
+      vehicleID = event:attr("vehicleID").klog("got id")
       vehicle = ent:vehicles{ vehicleID }.klog("this is the vehicle")
       exists = (ent:vehicles >< vehicleID).klog("this is exists")
     }
