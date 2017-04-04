@@ -22,7 +22,7 @@ ruleset manage_fleet {
     }
 
     vehicles = function() {
-      ent:subscriptions
+      ent:vehicles
     }
 	}
 
@@ -60,8 +60,6 @@ ruleset manage_fleet {
       vehicle = event:attr("new_child")
       vehicleID = event:attr("rs_attrs"){"vehicleID"}
       vehicleECI = vehicle.eci
-      subscriptionName = subscriptionNameFromID(vehicleID)
-      eci = meta:eci
     }
 
       event:send( { "eci": vehicle.eci, "eid": "install-ruleset",
@@ -73,22 +71,34 @@ ruleset manage_fleet {
       event:send( { "eci": vehicle.eci, "eid": "install-ruleset",
           "domain": "pico", "type": "new_ruleset",
           "attrs": { "rid": "track_mo_trips", "vehicleID": vehicleID } } )
+
+    fired {
+      ent:vehicles := ent:vehicles.defaultsTo({});
+      ent:vehicles{[vehicleID]} := vehicle;
+      raise create event "car_subscription"
+        attributes { "vehicle": vehicle, "vehicleID": vehicleID }
+    }
+  }
+
+  rule create_subscription {
+    select when create car_subscription
+    pre {
+      vehicle = event:attr("vehicle").klog("vehicle")
+      vehicleID = event:attr("vehicleID").klog("vehilce ID")
+      eci = meta:eci
+    }
       event:send(
         { "eci": eci, "eid": "subscription",
           "domain": "wrangler", "type": "subscription",
           "attrs": { 
-            "name": subscriptionName,
+            "name": subscriptionNameFromID(vehicleID),
             "name_space": "fleet-car",
             "my_role": "fleet",
             "subscriber_role": "vehicle",
             "channel_type": "subscription",
-            "subscriber_eci": vehicleECI
+            "subscriber_eci": vehicle.eci
           }
         }
       )
-    fired {
-      ent:vehicles := ent:vehicles.defaultsTo({});
-      ent:vehicles{[vehicleID]} := vehicle
-    }
   }
 }
