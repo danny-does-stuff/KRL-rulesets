@@ -1,23 +1,23 @@
 ruleset manage_fleet {
-	meta {
-		name "manage_fleet"
-		description << Fleet managing ruleset for the fleet pico >>
-		author "Danny Harding"
-		logging on
+  meta {
+    name "manage_fleet"
+    description << Fleet managing ruleset for the fleet pico >>
+    author "Danny Harding"
+    logging on
     use module Subscriptions
-		shares __testing
-	}
+    shares __testing, fleetTrips
+  }
 
-	global {
-		__testing = { 
-			"queries": [ { "name": "__testing" } ],
-			"events": [
-				{ 
+  global {
+    __testing = { 
+      "queries": [ { "name": "__testing" }, { "name": "fleetTrips" } ],
+      "events": [
+        { 
           "domain": "car",
           "type": "new_vehicle",
           "attrs": [ "vehicleID" ]
         },
-				{
+        {
           "domain": "create",
           "type": "car_pico",
           "attrs": [ "vehicleID" ]
@@ -27,8 +27,8 @@ ruleset manage_fleet {
           "type": "unneeded_vehicle",
           "attrs": [ "vehicleID" ]
         }
-			]
-		}
+      ]
+    }
 
     subscriptionNameFromID = function(vehicleID) {
       "car" + vehicleID
@@ -44,53 +44,58 @@ ruleset manage_fleet {
       })
     }
 
+    getTrips = function(vehicleECI) {
+      result = http:get("http://localhost:8080/sky/cloud/" + vehicleECI + "/trip_store/trips");
+      result{ "content" }.decode()
+    }
+
+    getJSON = function(len, vehicleECI) {
+      vehicleTrips = {
+        "vehicles": len,
+        "responding": len,
+        "trips": getTrips(vehicleECI)
+      }
+    }
+
     fleetTrips = function() {
       vehicles = ent:vehicles;
-      vehicles.map(function(vehicleID, vehicle) {
-        {
-          "vehicles": vehicles.keys().length(),
-          "responding": vehicles.keys().length(),
-          "trips": getTrips(vehicle)
-        }
+      vehicles.map(function(vehicle, vehicleID) {
+        getJSON(vehicles.keys().length(), vehicle.eci)
       })
     }
 
-    getTrips = function(vehicle) {
-      http:get("http://localhost:8080/sky/cloud/" + vehicle.eci + "/trip_store/trips")
-    }
-
     subscriptionNameSpace = "fleet-car"
-	}
+  }
 
-	rule create_vehicle {
-		select when car new_vehicle
-		pre {
-			vehicleID = event:attr("vehicleID").defaultsTo(0)
-		}
-		always {
-			raise create event "car_pico"
+  rule create_vehicle {
+    select when car new_vehicle
+    pre {
+      vehicleID = event:attr("vehicleID").defaultsTo(0)
+    }
+    always {
+      raise create event "car_pico"
         attributes { "vehicleID": vehicleID }
-		}
-	}
+    }
+  }
 
-	rule create_pico {
-		select when create car_pico
-		pre {
+  rule create_pico {
+    select when create car_pico
+    pre {
       vehicleID = event:attr("vehicleID")
       exists = ent:vehicles >< vehicleID
-			newPicoName = "car numero " + vehicleID
-		}
+      newPicoName = "car numero " + vehicleID
+    }
     if exists then
       send_directive("vehicle ready")
         with vehicleID = vehicleID
-		fired {
+    fired {
     } else {
-			raise pico event "new_child_request"
-				attributes { "dname": newPicoName, "color": "#FF69B4", "vehicleID": vehicleID}
-		}
-	}
+      raise pico event "new_child_request"
+        attributes { "dname": newPicoName, "color": "#FF69B4", "vehicleID": vehicleID}
+    }
+  }
 
-	rule pico_child_initialized {
+  rule pico_child_initialized {
     select when pico child_initialized
     pre {
       vehicle = event:attr("new_child")
@@ -110,7 +115,7 @@ ruleset manage_fleet {
 
     fired {
       ent:vehicles := ent:vehicles.defaultsTo({});
-      ent:vehicles{vehicleID} := vehicle;
+      ent:vehicles{ vehicleID } := vehicle;
       raise create event "car_subscription"
         attributes { "vehicle": vehicle, "vehicleID": vehicleID }
     }
@@ -143,7 +148,7 @@ ruleset manage_fleet {
     pre {
       vehicleID = event:attr("vehicleID")
       vehicle = ent:vehicles{ vehicleID }
-      exists = ent:vehicles >< vehicleID
+      exists = ent:vehicles >< (vehicleID)
     }
     if exists then
       send_directive("removing vehicle")
