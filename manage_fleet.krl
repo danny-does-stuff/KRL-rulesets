@@ -31,7 +31,7 @@ ruleset manage_fleet {
 		}
 
     subscriptionNameFromID = function(vehicleID) {
-      "car" + vehicleID + " subscription"
+      "car" + vehicleID
     }
 
     subscriptionName = function(vehicleID) {
