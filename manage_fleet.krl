@@ -54,19 +54,16 @@ ruleset manage_fleet {
       vehicleID = event:attr("rs_attrs"){"vehicleID"}
       subscriptionName = event:att("rs_attrs"){"subscriptionName"}
     }
-    if vehicleID
-    then
 
-      event:send(
-          { "eci": vehicle.eci, "eid": "install-ruleset",
-            "domain": "pico", "type": "new_ruleset",
-            "attrs": { "rid": "Subscriptions", "vehicleID": vehicleID } },
-          { "eci": vehicle.eci, "eid": "install-ruleset",
-            "domain": "pico", "type": "new_ruleset",
-            "attrs": { "rid": "trip_store", "vehicleID": vehicleID } },
-          { "eci": vehicle.eci, "eid": "install-ruleset",
-            "domain": "pico", "type": "new_ruleset",
-            "attrs": { "rid": "track_mo_trips", "vehicleID": vehicleID } } )
+      event:send( { "eci": vehicle.eci, "eid": "install-ruleset",
+          "domain": "pico", "type": "new_ruleset",
+          "attrs": { "rid": "Subscriptions", "vehicleID": vehicleID } } )
+      event:send( { "eci": vehicle.eci, "eid": "install-ruleset",
+          "domain": "pico", "type": "new_ruleset",
+          "attrs": { "rid": "trip_store", "vehicleID": vehicleID } } )
+      event:send( { "eci": vehicle.eci, "eid": "install-ruleset",
+          "domain": "pico", "type": "new_ruleset",
+          "attrs": { "rid": "track_mo_trips", "vehicleID": vehicleID } } )
     fired {
       ent:vehicles := ent:vehicles.defaultsTo({});
       ent:vehicles{[vehicleID]} := vehicle;
