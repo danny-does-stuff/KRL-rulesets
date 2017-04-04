@@ -18,7 +18,7 @@ ruleset trip_store {
 		}
 
 		trips = function() {
-			ent:trips
+			ent:trips.defaultsTo({})
 		}
 
 		long_trips = function() {
@@ -63,5 +63,26 @@ ruleset trip_store {
 			ent:trips := empty_trips;
 			ent:long_trips := empty_trips
 		}
+	}
+
+	rule make_report {
+		select when car make_report
+		pre {
+			requestorECI = event:attr("requestorECI")
+			reportID = event:attr("reportID")
+			uniqueID = event:attr("uniqueID")
+			myTrips = trips()
+		}
+		event:send({
+			"eci": requestorECI,
+			"eid": "make mah report",
+			"domain": "car",
+			"type": "report_created",
+			"attrs": {
+				"reportID": reportID,
+				"uniqueID": uniqueID,
+				"report": myTrips
+			}
+		})
 	}
 }
