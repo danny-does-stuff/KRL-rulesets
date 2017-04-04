@@ -93,7 +93,7 @@ ruleset manage_fleet {
 
     fired {
       ent:vehicles := ent:vehicles.defaultsTo({});
-      ent:vehicles{[vehicleID]} := vehicle;
+      ent:vehicles{vehicleID} := vehicle;
       raise create event "car_subscription"
         attributes { "vehicle": vehicle, "vehicleID": vehicleID }
     }
@@ -124,9 +124,9 @@ ruleset manage_fleet {
   rule delete_vehicle {
     select when car unneeded_vehicle
     pre {
-      vehicleID = event:attrs("vehicleID")
+      vehicleID = event:attrs("vehicleID").klog("got id")
       vehicle = ent:vehicles{ vehicleID }.klog("this is the vehicle")
-      exists = ent:vehicles >< vehicleID
+      exists = (ent:vehicles >< vehicleID).klog("this is exists")
     }
     if exists then
       send_directive("removing vehicle")
