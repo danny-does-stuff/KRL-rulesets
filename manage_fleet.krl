@@ -73,19 +73,19 @@ ruleset manage_fleet {
       event:send( { "eci": vehicle.eci, "eid": "install-ruleset",
           "domain": "pico", "type": "new_ruleset",
           "attrs": { "rid": "track_mo_trips", "vehicleID": vehicleID } } )
-//      event:send(
-//        { "eci": eci, "eid": "subscription",
-//          "domain": "wrangler", "type": "subscription",
-//          "attrs": { 
-//            "name": subscriptionName,
-//            "name_space": "fleet-car",
-//            "my_role": "fleet",
-//            "subscriber_role": "vehicle",
- //           "channel_type": "subscription",
- //           "subscriber_eci": vehicleECI
- //         }
- //       }
- //     )
+      event:send(
+        { "eci": eci, "eid": "subscription",
+          "domain": "wrangler", "type": "subscription",
+          "attrs": { 
+            "name": subscriptionName,
+            "name_space": "fleet-car",
+            "my_role": "fleet",
+            "subscriber_role": "vehicle",
+            "channel_type": "subscription",
+            "subscriber_eci": vehicleECI
+          }
+        }
+      )
     fired {
       ent:vehicles := ent:vehicles.defaultsTo({});
       ent:vehicles{[vehicleID]} := vehicle
