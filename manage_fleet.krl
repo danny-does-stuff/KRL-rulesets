@@ -44,6 +44,21 @@ ruleset manage_fleet {
       })
     }
 
+    fleetTrips = function() {
+      vehicles = ent:vehicles
+      vehicles.map(function(vehicleID, vehicle) {
+        {
+          "vehicles": vehicles.keys().length(),
+          "responding": vehicles.keys().length(),
+          "trips": getTrips(vehicle)
+        }
+      })
+    }
+
+    getTrips = function(vehicle) {
+      http:get("http://localhost:8080/sky/cloud/" + vehicle.eci + "/trip_store/trips")
+    }
+
     subscriptionNameSpace = "fleet-car"
 	}
 
